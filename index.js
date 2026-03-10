@@ -18,26 +18,42 @@ function spinner(msg) {
   };
 }
 
+const DEFAULT_API_KEY = "sk-or-v1-xxx"; // Replace with your key
+
 async function getApiKey() {
   let key = process.env.OPENROUTER_API_KEY;
 
   if (!key) {
-    const response = await prompts({
-      type: "password",
-      name: "apiKey",
-      message: "Enter your OpenRouter API key:",
+    const useOwn = await prompts({
+      type: "select",
+      name: "value",
+      message: "Use your own OpenRouter API key?",
+      choices: [
+        { label: "Yes, I'll enter mine", value: true },
+        { label: "No, use default", value: false },
+      ],
     });
 
-    key = response.apiKey;
+    if (useOwn.value) {
+      const response = await prompts({
+        type: "password",
+        name: "apiKey",
+        message: "Enter your OpenRouter API key:",
+      });
 
-    if (!key) {
-      console.log("❌ API key is required. Exiting...");
-      process.exit(1);
+      key = response.apiKey;
+
+      if (!key) {
+        console.log("❌ API key is required. Exiting...");
+        process.exit(1);
+      }
+
+      fs.appendFileSync(".env", `\nOPENROUTER_API_KEY=${key}\n`);
+      console.log("✅ API key saved to .env");
+      process.env.OPENROUTER_API_KEY = key;
+    } else {
+      key = DEFAULT_API_KEY;
     }
-
-    fs.appendFileSync(".env", `\nOPENROUTER_API_KEY=${key}\n`);
-    console.log("✅ API key saved to .env");
-    process.env.OPENROUTER_API_KEY = key;
   }
 
   return key;
@@ -124,6 +140,22 @@ async function run() {
         execSync("git add .", { stdio: "inherit" });
         execSync(`git commit -m "${message}"`, { stdio: "inherit" });
         console.log("✅ Committed!");
+
+        const shouldPush = await prompts({
+          type: "select",
+          name: "value",
+          message: "Push to remote?",
+          choices: [
+            { label: "Yes, push", value: true },
+            { label: "No, exit", value: false },
+          ],
+        });
+
+        if (shouldPush.value) {
+          execSync("git push", { stdio: "inherit" });
+          console.log("✅ Pushed!");
+        }
+
         accepted = true;
       } else if (response.action === "exit") {
         accepted = true;
