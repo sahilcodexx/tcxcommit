@@ -25,10 +25,18 @@ export async function run() {
 
     const apiKey = await getApiKey();
 
+    // Auto stage all changes
+    try {
+      const { execSync } = await import("child_process");
+      execSync("git add .", { stdio: "ignore" });
+    } catch (err) {
+      // Ignore if no changes to add
+    }
+
     const diff = await getGitDiff();
     if (!diff) {
       printBox(
-        [chalk.red("No changes found"), chalk.gray("Run 'git add .' first")],
+        [chalk.red("No changes found"), chalk.gray("Make some changes first")],
         { borderColor: "red" }
       );
       return;
@@ -106,7 +114,6 @@ export async function run() {
       if (response.action === "commit") {
         try {
           const { execSync } = await import("child_process");
-          execSync("git add .", { stdio: "inherit" });
           execSync(`git commit -m "${message}"`, { stdio: "inherit" });
         } catch (err) {
           printBox([chalk.red("Git commit failed")], { borderColor: "red" });

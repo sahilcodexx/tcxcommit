@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 
 export function getGitDiff() {
   try {
-    const diff = execSync("git diff", {
+    const diff = execSync("git diff --cached", {
       maxBuffer: 1024 * 1024 * 10,
       encoding: "utf-8",
     });
@@ -16,6 +16,6 @@ export function getGitDiff() {
     if (err.message.includes("not a git repository")) {
       throw new Error("Not a git repository");
     }
-    throw err;
+    return null;
   }
 }

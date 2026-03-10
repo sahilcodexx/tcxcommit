@@ -83,7 +83,7 @@ export async function getApiKey() {
     
     // Use saved key for free trials if available
     if (savedKey && isUserKey(savedKey)) {
-      console.log(chalk.gray(`  Using free trial (${trials - 1} will remain)\n`));
+      console.log(chalk.gray(`  Using free trial\n`));
       return savedKey;
     }
     
