@@ -5,15 +5,15 @@ import chalk from "chalk";
 
 dotenv.config();
 
-const DEFAULT_API_KEY = "sk-or-v1-xxxx"; // Your default key
+const DEFAULT_API_KEY = "sk-or-v1-xxxx";
 const MAX_FREE_TRIALS = 5;
 
-function getTrials() {
+function getTrials(): number {
   const trials = process.env.FREE_TRIALS;
   return trials ? parseInt(trials) : MAX_FREE_TRIALS;
 }
 
-function setTrials(count) {
+function setTrials(count: number): void {
   if (!fs.existsSync(".env")) return;
   const envContent = fs.readFileSync(".env", "utf-8");
   const lines = envContent.split("\n");
@@ -35,7 +35,7 @@ function setTrials(count) {
   process.env.FREE_TRIALS = count.toString();
 }
 
-export function saveKey(key) {
+export function saveKey(key: string): void {
   const envContent = fs.existsSync(".env") ? fs.readFileSync(".env", "utf-8") : "";
   const lines = envContent.split("\n");
   
@@ -54,17 +54,16 @@ export function saveKey(key) {
   process.env.OPENROUTER_API_KEY = key;
 }
 
-function isUserKey(key) {
-  return key && key !== DEFAULT_API_KEY;
+function isUserKey(key: string | undefined): boolean {
+  return key !== undefined && key !== DEFAULT_API_KEY;
 }
 
-export async function getApiKey() {
+export async function getApiKey(): Promise<string> {
   let savedKey = process.env.OPENROUTER_API_KEY;
   let trials = getTrials();
   
   console.log(chalk.gray(`  Free trials remaining: ${trials}\n`));
   
-  // Always ask user what they want to use
   const choice = await prompts({
     type: "select",
     name: "value",
@@ -81,7 +80,6 @@ export async function getApiKey() {
       process.exit(1);
     }
     
-    // Use saved key for free trials if available
     if (savedKey && isUserKey(savedKey)) {
       console.log(chalk.gray(`  Using free trial\n`));
       return savedKey;
@@ -91,10 +89,8 @@ export async function getApiKey() {
     return DEFAULT_API_KEY;
   }
   
-  // User wants to use their own key
   let key = savedKey;
   
-  // If user has saved key, ask to keep or change
   if (savedKey && isUserKey(savedKey)) {
     const keepOrChange = await prompts({
       type: "select",
@@ -108,11 +104,10 @@ export async function getApiKey() {
 
     if (keepOrChange.value === "keep") {
       console.log(chalk.green("  Using saved API key\n"));
-      return key;
+      return key!;
     }
   }
   
-  // Ask for new key
   const response = await prompts({
     type: "password",
     name: "apiKey",
@@ -133,7 +128,7 @@ export async function getApiKey() {
   return key;
 }
 
-export function useTrial() {
+export function useTrial(): number {
   let trials = getTrials();
   if (trials > 0) {
     trials--;

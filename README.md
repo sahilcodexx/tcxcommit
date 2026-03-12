@@ -1,11 +1,11 @@
-# termycommit
+# tcxcommit
 
 AI-powered git commit message generator using OpenRouter API.
 
-[![npm version](https://img.shields.io/npm/v/termycommit)](https://www.npmjs.com/package/termycommit)
-[![npm downloads](https://img.shields.io/npm/dm/termycommit)](https://www.npmjs.com/package/termycommit)
+[![npm version](https://img.shields.io/npm/v/tcxcommit)](https://www.npmjs.com/package/tcxcommit)
+[![npm downloads](https://img.shields.io/npm/dm/tcxcommit)](https://www.npmjs.com/package/tcxcommit)
 
-termycommit helps you generate smart and meaningful commit messages for your git repository using AI. Just stage your changes and let termycommit create the perfect commit message for you.
+tcxcommit helps you generate smart and meaningful commit messages for your git repository using AI. Just stage your changes and let tcxcommit create the perfect commit message for you.
 
 ## Features
 
@@ -19,7 +19,7 @@ termycommit helps you generate smart and meaningful commit messages for your git
 ## Installation
 
 ```bash
-npm install -g termycommit
+npm install -g tcxcommit
 ```
 
 ## Quick Start
@@ -28,15 +28,15 @@ npm install -g termycommit
 # Stage your changes
 git add .
 
-# Run termycommit
-termycommit
+# Run tcxcommit
+tcxcommit
 ```
 
 ## Usage Guide
 
 ### Step 1: Stage Your Changes
 
-Before running termycommit, stage the files you want to commit:
+Before running tcxcommit, stage the files you want to commit:
 
 ```bash
 # Stage specific file
@@ -49,10 +49,10 @@ git add .
 git add src/
 ```
 
-### Step 2: Run termycommit
+### Step 2: Run tcxcommit
 
 ```bash
-termycommit
+tcxcommit
 ```
 
 ### Step 3: Follow the Prompts
@@ -70,7 +70,7 @@ termycommit
 Using your own API key gives you unlimited commits without worrying about free trial limits.
 
 1. Visit [OpenRouter](https://openrouter.ai/keys) to get a free API key
-2. When prompted in termycommit, select "Use my own API key"
+2. When prompted in tcxcommit, select "Use my own API key"
 3. Enter your API key when asked
 4. The key is saved to `.env` file for future use
 
@@ -78,7 +78,7 @@ Your key stays on your machine and is never shared.
 
 ### Option 2: Free Trials
 
-termycommit provides 5 free trial commits using a default API key. This is useful for testing or occasional use.
+tcxcommit provides 5 free trial commits using a default API key. This is useful for testing or occasional use.
 
 - Shows remaining trials on each run
 - When exhausted, you'll be prompted to add your own key
@@ -88,7 +88,7 @@ termycommit provides 5 free trial commits using a default API key. This is usefu
 
 ```bash
 # Basic usage
-termycommit
+tcxcommit
 
 # Stage specific file
 git add index.js
@@ -140,7 +140,7 @@ Error: Free trials exhausted
 If you get permission errors:
 
 ```bash
-sudo npm install -g termycommit
+sudo npm install -g tcxcommit
 ```
 
 Or fix npm permissions:
@@ -150,12 +150,12 @@ mkdir ~/.npm-global
 npm config set prefix '~/.npm-global'
 echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
-npm install -g termycommit
+npm install -g tcxcommit
 ```
 
 ## How It Works
 
-termycommit uses the following flow:
+tcxcommit uses the following flow:
 
 1. Reads your staged git changes using `git diff --cached`
 2. Sends the diff to OpenRouter AI API
@@ -173,7 +173,7 @@ termycommit uses the following flow:
 ## Project Structure
 
 ```
-termycommit/
+tcxcommit/
 ├── bin/
 │   └── cli.js              # Entry point
 ├── src/
@@ -203,7 +203,7 @@ ISC
 
 ## Author
 
-termycommit is created and maintained by the community.
+tcxcommit is created and maintained by the community.
 
 ## Support
 

@@ -1,4 +1,4 @@
-export async function generateCommitMessage(apiKey, diff) {
+export async function generateCommitMessage(apiKey: string, diff: string): Promise<string> {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -24,7 +24,10 @@ export async function generateCommitMessage(apiKey, diff) {
     }),
   });
 
-  const data = await res.json();
+  const data = await res.json() as {
+    choices?: Array<{ message: { content: string } }>;
+    error?: { message: string };
+  };
 
   if (!data.choices) {
     const errorMsg = data.error?.message || JSON.stringify(data);

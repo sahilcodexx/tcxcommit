@@ -2,7 +2,12 @@ import chalk from "chalk";
 
 const BOX_WIDTH = 50;
 
-export function printBox(lines, options = {}) {
+interface PrintBoxOptions {
+  borderColor?: "cyan" | "red" | "green" | "yellow" | "blue" | "magenta";
+  title?: string;
+}
+
+export function printBox(lines: string[], options: PrintBoxOptions = {}): void {
   const { borderColor = "cyan", title } = options;
   const border = chalk[borderColor]("─".repeat(BOX_WIDTH));
   const vertical = chalk[borderColor]("│");
@@ -34,7 +39,7 @@ export function printBox(lines, options = {}) {
   console.log(chalk[borderColor]("└") + border + chalk[borderColor]("┘"));
 }
 
-export function spinner(msg) {
+export function spinner(msg: string): () => void {
   const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
   let i = 0;
   const interval = setInterval(() => {

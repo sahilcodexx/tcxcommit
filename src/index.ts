@@ -8,7 +8,7 @@ import prompts from "prompts";
 
 const VERSION = "1.0.0";
 
-export async function run() {
+export async function run(): Promise<void> {
   try {
     header(VERSION);
 
@@ -25,15 +25,14 @@ export async function run() {
 
     const apiKey = await getApiKey();
 
-    // Auto stage all changes
     try {
       const { execSync } = await import("child_process");
       execSync("git add .", { stdio: "ignore" });
-    } catch (err) {
+    } catch {
       // Ignore if no changes to add
     }
 
-    const diff = await getGitDiff();
+    const diff = getGitDiff();
     if (!diff) {
       printBox(
         [chalk.red("No changes found"), chalk.gray("Make some changes first")],
@@ -53,8 +52,9 @@ export async function run() {
         message = await generateCommitMessage(apiKey, diff);
       } catch (err) {
         stopSpinner();
+        const error = err as Error;
         
-        if (err.message.includes("rate_limit") || err.message.includes("Rate limit")) {
+        if (error.message.includes("rate_limit") || error.message.includes("Rate limit")) {
           printBox([
             chalk.red("Rate limit exceeded!"),
             chalk.yellow("Add your own API key for unlimited usage")
@@ -88,7 +88,7 @@ export async function run() {
           return;
         }
         
-        printBox([chalk.red(err.message)], {
+        printBox([chalk.red(error.message)], {
           borderColor: "red",
           title: "API Error",
         });
@@ -115,7 +115,7 @@ export async function run() {
         try {
           const { execSync } = await import("child_process");
           execSync(`git commit -m "${message}"`, { stdio: "inherit" });
-        } catch (err) {
+        } catch {
           printBox([chalk.red("Git commit failed")], { borderColor: "red" });
           return;
         }
@@ -134,7 +134,7 @@ export async function run() {
           try {
             const { execSync } = await import("child_process");
             execSync("git push", { stdio: "inherit" });
-          } catch (err) {
+          } catch {
             printBox([chalk.red("Git push failed")], { borderColor: "red" });
             return;
           }
@@ -147,10 +147,11 @@ export async function run() {
       }
     }
   } catch (err) {
-    if (err.message === "canceled") {
+    const error = err as Error;
+    if (error.message === "canceled") {
       return;
     }
-    printBox([chalk.red(err.message)], {
+    printBox([chalk.red(error.message)], {
       borderColor: "red",
       title: "Error",
     });
