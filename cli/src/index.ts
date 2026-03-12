@@ -25,13 +25,6 @@ export async function run(): Promise<void> {
 
     const apiKey = await getApiKey();
 
-    try {
-      const { execSync } = await import("child_process");
-      execSync("git add .", { stdio: "ignore" });
-    } catch {
-      // Ignore if no changes to add
-    }
-
     const diff = getGitDiff();
     if (!diff) {
       printBox(

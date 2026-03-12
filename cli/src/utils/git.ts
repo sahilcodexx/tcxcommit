@@ -2,6 +2,16 @@ import { execSync } from "child_process";
 
 export function getGitDiff(): string | null {
   try {
+    const hasChanges = execSync("git status --porcelain", {
+      encoding: "utf-8",
+    });
+
+    if (!hasChanges || hasChanges.trim() === "") {
+      return null;
+    }
+
+    execSync("git add .", { stdio: "ignore" });
+
     const diff = execSync("git diff --cached", {
       maxBuffer: 1024 * 1024 * 10,
       encoding: "utf-8",

@@ -1,11 +1,11 @@
 {
-  "name": "termycommit-cli",
+  "name": "termycommit",
   "version": "1.0.1",
   "type": "module",
   "description": "AI-powered git commit message generator",
   "main": "src/index.ts",
   "bin": {
-    "tcxcommit": "./bin/cli.ts"
+    "termycommit": "./bin/cli.ts"
   },
   "scripts": {
     "start": "tsx bin/cli.ts",

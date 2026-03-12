@@ -1,57 +1,56 @@
 import dotenv from "dotenv";
 import fs from "fs";
+import os from "os";
+import path from "path";
 import prompts from "prompts";
 import chalk from "chalk";
 
-dotenv.config();
-
 const DEFAULT_API_KEY = "sk-or-v1-xxxx";
 const MAX_FREE_TRIALS = 5;
+const CONFIG_DIR = path.join(os.homedir(), ".termycommit");
+const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
+
+interface Config {
+  apiKey?: string;
+  freeTrials: number;
+}
+
+function ensureConfigDir(): void {
+  if (!fs.existsSync(CONFIG_DIR)) {
+    fs.mkdirSync(CONFIG_DIR, { recursive: true });
+  }
+}
+
+function loadConfig(): Config {
+  ensureConfigDir();
+  if (!fs.existsSync(CONFIG_FILE)) {
+    const defaultConfig: Config = { freeTrials: MAX_FREE_TRIALS };
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
+    return defaultConfig;
+  }
+  return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf-8"));
+}
+
+function saveConfig(config: Config): void {
+  ensureConfigDir();
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+}
 
 function getTrials(): number {
-  const trials = process.env.FREE_TRIALS;
-  return trials ? parseInt(trials) : MAX_FREE_TRIALS;
+  const config = loadConfig();
+  return config.freeTrials;
 }
 
 function setTrials(count: number): void {
-  if (!fs.existsSync(".env")) return;
-  const envContent = fs.readFileSync(".env", "utf-8");
-  const lines = envContent.split("\n");
-  let found = false;
-  
-  const newLines = lines.map(line => {
-    if (line.startsWith("FREE_TRIALS=")) {
-      found = true;
-      return `FREE_TRIALS=${count}`;
-    }
-    return line;
-  });
-  
-  if (!found) {
-    newLines.push(`FREE_TRIALS=${count}`);
-  }
-  
-  fs.writeFileSync(".env", newLines.join("\n"));
-  process.env.FREE_TRIALS = count.toString();
+  const config = loadConfig();
+  config.freeTrials = count;
+  saveConfig(config);
 }
 
 export function saveKey(key: string): void {
-  const envContent = fs.existsSync(".env") ? fs.readFileSync(".env", "utf-8") : "";
-  const lines = envContent.split("\n");
-  
-  const newLines = lines.map(line => {
-    if (line.startsWith("OPENROUTER_API_KEY=")) {
-      return `OPENROUTER_API_KEY=${key}`;
-    }
-    return line;
-  });
-  
-  if (!envContent.includes("OPENROUTER_API_KEY=")) {
-    newLines.push(`OPENROUTER_API_KEY=${key}`);
-  }
-  
-  fs.writeFileSync(".env", newLines.join("\n"));
-  process.env.OPENROUTER_API_KEY = key;
+  const config = loadConfig();
+  config.apiKey = key;
+  saveConfig(config);
 }
 
 function isUserKey(key: string | undefined): boolean {
@@ -59,8 +58,8 @@ function isUserKey(key: string | undefined): boolean {
 }
 
 export async function getApiKey(): Promise<string> {
-  let savedKey = process.env.OPENROUTER_API_KEY;
-  let trials = getTrials();
+  const config = loadConfig();
+  let trials = config.freeTrials;
   
   console.log(chalk.gray(`  Free trials remaining: ${trials}\n`));
   
@@ -80,31 +79,26 @@ export async function getApiKey(): Promise<string> {
       process.exit(1);
     }
     
-    if (savedKey && isUserKey(savedKey)) {
-      console.log(chalk.gray(`  Using free trial\n`));
-      return savedKey;
-    }
-    
     console.log(chalk.gray(`  Using free trial\n`));
     return DEFAULT_API_KEY;
   }
   
-  let key = savedKey;
+  let key = config.apiKey;
   
-  if (savedKey && isUserKey(savedKey)) {
+  if (key && isUserKey(key)) {
     const keepOrChange = await prompts({
       type: "select",
       name: "value",
       message: chalk.yellow("  API key saved. Use same or enter new?"),
       choices: [
-        { title: chalk.green("Use Free key (only 5 commit)"), value: "keep" },
+        { title: chalk.green("Keep current key"), value: "keep" },
         { title: chalk.blue("Enter new key"), value: "change" },
       ],
     });
 
     if (keepOrChange.value === "keep") {
       console.log(chalk.green("  Using saved API key\n"));
-      return key!;
+      return key;
     }
   }
   
@@ -122,7 +116,7 @@ export async function getApiKey(): Promise<string> {
   }
 
   saveKey(key);
-  console.log(chalk.green("  Key saved to .env\n"));
+  console.log(chalk.green("  Key saved!\n"));
   
   console.log(chalk.green("  Using your API key\n"));
   return key;
