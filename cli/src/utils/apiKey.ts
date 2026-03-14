@@ -64,7 +64,7 @@ export async function getApiKey(): Promise<string> {
   // Check if user has their own custom key (different from trial key)
   const hasCustomKey = savedKey && savedKey !== TRIAL_KEY;
   
-  // CASE 1: User has custom key saved
+  // CASE 1: User has custom key saved - show Continue/Change
   if (hasCustomKey) {
     const choice = await prompts({
       type: "select",
@@ -82,25 +82,25 @@ export async function getApiKey(): Promise<string> {
     }
   }
   
-  // CASE 2: No custom key or wants to change - show both options
-  const choice = await prompts({
-    type: "select",
-    name: "value",
-    message: chalk.yellow("  Choose:"),
-    choices: [
-      { title: chalk.green(`Use free trials (${trials} left)`), value: "free" },
-      { title: chalk.blue("Add your API key"), value: "add" },
-    ],
-  });
+  // CASE 2: No custom key but trials available - show Free trials / Add API key
+  if (trials > 0) {
+    const choice = await prompts({
+      type: "select",
+      name: "value",
+      message: chalk.yellow("  Choose:"),
+      choices: [
+        { title: chalk.green(`Use free trials (${trials} left)`), value: "free" },
+        { title: chalk.blue("Add your API key"), value: "add" },
+      ],
+    });
 
-  if (choice.value === "free") {
-    if (trials <= 0) {
-      console.log(chalk.red("  Free trials exhausted! Add your API key."));
-      console.log(chalk.cyan(`\n  Get key: https://openrouter.ai/keys\n`));
-      process.exit(1);
+    if (choice.value === "free") {
+      console.log(chalk.cyan(`  Using free trial\n`));
+      return TRIAL_KEY;
     }
-    console.log(chalk.cyan(`  Using free trial\n`));
-    return TRIAL_KEY;
+  } else {
+    console.log(chalk.red("  Free trials exhausted! Add your API key."));
+    console.log(chalk.cyan(`\n  Get key: https://openrouter.ai/keys\n`));
   }
   
   // User wants to add their own key
