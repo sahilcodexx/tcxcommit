@@ -6,7 +6,7 @@ import { getGitDiff, commit } from "./utils/git.js";
 import chalk from "chalk";
 import prompts from "prompts";
 
-const VERSION = "1.0.0";
+const VERSION = "1.0.5";
 
 export async function run(): Promise<void> {
   try {
@@ -112,7 +112,6 @@ export async function run(): Promise<void> {
           return;
         }
 
-        useTrial();
         printBox([chalk.green("Committed!")], { borderColor: "green" });
 
         const shouldPush = await prompts({

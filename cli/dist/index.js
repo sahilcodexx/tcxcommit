@@ -1,11 +1,11 @@
 import { header } from "./ui/header.js";
 import { printBox, spinner } from "./ui/spinner.js";
-import { getApiKey, useTrial, saveKey } from "./utils/apiKey.js";
+import { getApiKey, saveKey } from "./utils/apiKey.js";
 import { generateCommitMessage } from "./api/openrouter.js";
 import { getGitDiff, commit } from "./utils/git.js";
 import chalk from "chalk";
 import prompts from "prompts";
-const VERSION = "1.0.0";
+const VERSION = "1.0.5";
 export async function run() {
     try {
         header(VERSION);
@@ -94,7 +94,6 @@ export async function run() {
                     printBox([chalk.red("Git commit failed")], { borderColor: "red" });
                     return;
                 }
-                useTrial();
                 printBox([chalk.green("Committed!")], { borderColor: "green" });
                 const shouldPush = await prompts({
                     type: "confirm",

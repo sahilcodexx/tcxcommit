@@ -6,7 +6,7 @@ export async function generateCommitMessage(apiKey, diff) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${apiKey}`,
                 "HTTP-Referer": "https://github.com",
-                "X-Title": "termycommit",
+                "X-Title": "tcxcommit",
             },
             body: JSON.stringify({
                 model: "arcee-ai/trinity-mini:free",

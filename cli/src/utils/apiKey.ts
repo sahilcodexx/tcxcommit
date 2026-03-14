@@ -4,13 +4,13 @@ import path from "path";
 import prompts from "prompts";
 import chalk from "chalk";
 
-const DEFAULT_API_KEY = "sk-or-v1-xxxx";
 const MAX_FREE_TRIALS = 5;
 const CONFIG_DIR = path.join(os.homedir(), ".tcxcommit");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 
 interface Config {
   apiKey?: string;
+  hasCustomKey: boolean;
   freeTrials: number;
 }
 
@@ -23,7 +23,10 @@ function ensureConfigDir(): void {
 function loadConfig(): Config {
   ensureConfigDir();
   if (!fs.existsSync(CONFIG_FILE)) {
-    const defaultConfig: Config = { freeTrials: MAX_FREE_TRIALS };
+    const defaultConfig: Config = { 
+      hasCustomKey: false,
+      freeTrials: MAX_FREE_TRIALS 
+    };
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
     return defaultConfig;
   }
@@ -31,7 +34,7 @@ function loadConfig(): Config {
     const data = fs.readFileSync(CONFIG_FILE, "utf-8");
     return JSON.parse(data);
   } catch {
-    return { freeTrials: MAX_FREE_TRIALS };
+    return { hasCustomKey: false, freeTrials: MAX_FREE_TRIALS };
   }
 }
 
@@ -41,8 +44,7 @@ function saveConfig(config: Config): void {
 }
 
 function getTrials(): number {
-  const config = loadConfig();
-  return config.freeTrials;
+  return loadConfig().freeTrials;
 }
 
 function setTrials(count: number): void {
@@ -54,57 +56,43 @@ function setTrials(count: number): void {
 export function saveKey(key: string): void {
   const config = loadConfig();
   config.apiKey = key;
+  config.hasCustomKey = true;
   saveConfig(config);
-}
-
-function isUserKey(key: string | undefined): boolean {
-  return key !== undefined && key !== DEFAULT_API_KEY;
 }
 
 export async function getApiKey(): Promise<string> {
   const config = loadConfig();
-  let trials = config.freeTrials;
+  const trials = config.freeTrials;
+  const savedKey = config.apiKey;
+  const hasCustomKey = config.hasCustomKey;
   
   console.log(chalk.gray(`  Free trials remaining: ${trials}\n`));
   
-  const choice = await prompts({
-    type: "select",
-    name: "value",
-    message: chalk.yellow("  Choose API option:"),
-    choices: [
-      { title: chalk.green("Use my own API key"), value: "own" },
-      { title: chalk.blue(`Use free trials (${trials} left)`), value: "free" },
-    ],
-  });
-
-  if (choice.value === "free") {
-    if (trials <= 0) {
-      console.log(chalk.red("  Free trials exhausted! Add your own API key."));
-      process.exit(1);
-    }
-    
-    console.log(chalk.gray(`  Using free trial\n`));
-    return DEFAULT_API_KEY;
-  }
-  
-  let key = config.apiKey;
-  
-  if (key && isUserKey(key)) {
-    const keepOrChange = await prompts({
+  if (hasCustomKey && savedKey) {
+    const choice = await prompts({
       type: "select",
       name: "value",
-      message: chalk.yellow("  API key saved. Use same or enter new?"),
+      message: chalk.yellow("  Choose:"),
       choices: [
-        { title: chalk.green("Keep current key"), value: "keep" },
-        { title: chalk.blue("Enter new key"), value: "change" },
+        { title: chalk.green(`Use saved key (${trials} trials left)`), value: "saved" },
+        { title: chalk.blue("Enter new key"), value: "new" },
       ],
     });
 
-    if (keepOrChange.value === "keep") {
-      console.log(chalk.green("  Using saved API key\n"));
-      return key;
+    if (choice.value === "saved") {
+      console.log(chalk.green(`  Using saved API key\n`));
+      return savedKey;
     }
   }
+  
+  if (trials <= 0) {
+    console.log(chalk.red("  Free trials exhausted! Add your own API key."));
+    console.log(chalk.cyan(`\n  Get free key: https://openrouter.ai/keys\n`));
+    process.exit(1);
+  }
+  
+  console.log(chalk.cyan(`\n  Get your free API key:`));
+  console.log(chalk.gray(`  https://openrouter.ai/keys\n`));
   
   const response = await prompts({
     type: "password",
@@ -112,7 +100,7 @@ export async function getApiKey(): Promise<string> {
     message: chalk.yellow("  Enter your OpenRouter API key:"),
   });
 
-  key = response.apiKey;
+  const key = response.apiKey;
 
   if (!key) {
     console.log(chalk.red("  API key required"));
@@ -122,15 +110,13 @@ export async function getApiKey(): Promise<string> {
   saveKey(key);
   console.log(chalk.green("  Key saved!\n"));
   
-  console.log(chalk.green("  Using your API key\n"));
   return key;
 }
 
 export function useTrial(): number {
-  let trials = getTrials();
+  const trials = getTrials();
   if (trials > 0) {
-    trials--;
-    setTrials(trials);
+    setTrials(trials - 1);
   }
   return trials;
 }
