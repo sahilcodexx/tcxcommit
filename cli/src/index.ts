@@ -6,7 +6,7 @@ import { getGitDiff, commit } from "./utils/git.js";
 import chalk from "chalk";
 import prompts from "prompts";
 
-const VERSION = "1.0.5";
+const VERSION = "1.0.7";
 
 export async function run(): Promise<void> {
   try {

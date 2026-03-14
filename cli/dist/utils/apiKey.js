@@ -4,6 +4,7 @@ import path from "path";
 import prompts from "prompts";
 import chalk from "chalk";
 const MAX_FREE_TRIALS = 5;
+const TRIAL_KEY = "sk-or-v1-demo"; // Free demo key for trials
 const CONFIG_DIR = path.join(os.homedir(), ".tcxcommit");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 function ensureConfigDir() {
@@ -14,10 +15,7 @@ function ensureConfigDir() {
 function loadConfig() {
     ensureConfigDir();
     if (!fs.existsSync(CONFIG_FILE)) {
-        const defaultConfig = {
-            hasCustomKey: false,
-            freeTrials: MAX_FREE_TRIALS
-        };
+        const defaultConfig = { freeTrials: MAX_FREE_TRIALS };
         fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
         return defaultConfig;
     }
@@ -26,7 +24,7 @@ function loadConfig() {
         return JSON.parse(data);
     }
     catch {
-        return { hasCustomKey: false, freeTrials: MAX_FREE_TRIALS };
+        return { freeTrials: MAX_FREE_TRIALS };
     }
 }
 function saveConfig(config) {
@@ -44,35 +42,50 @@ function setTrials(count) {
 export function saveKey(key) {
     const config = loadConfig();
     config.apiKey = key;
-    config.hasCustomKey = true;
     saveConfig(config);
 }
 export async function getApiKey() {
     const config = loadConfig();
     const trials = config.freeTrials;
     const savedKey = config.apiKey;
-    const hasCustomKey = config.hasCustomKey;
-    console.log(chalk.gray(`  Free trials remaining: ${trials}\n`));
-    if (hasCustomKey && savedKey) {
+    // Check if user has their own custom key (different from trial key)
+    const hasCustomKey = savedKey && savedKey !== TRIAL_KEY;
+    // CASE 1: User has custom key saved
+    if (hasCustomKey) {
         const choice = await prompts({
             type: "select",
             name: "value",
             message: chalk.yellow("  Choose:"),
             choices: [
-                { title: chalk.green(`Use saved key (${trials} trials left)`), value: "saved" },
-                { title: chalk.blue("Enter new key"), value: "new" },
+                { title: chalk.green("Continue"), value: "continue" },
+                { title: chalk.blue("Change API key"), value: "change" },
             ],
         });
-        if (choice.value === "saved") {
-            console.log(chalk.green(`  Using saved API key\n`));
+        if (choice.value === "continue") {
+            console.log(chalk.green(`  Using your API key\n`));
             return savedKey;
         }
     }
-    if (trials <= 0) {
-        console.log(chalk.red("  Free trials exhausted! Add your own API key."));
-        console.log(chalk.cyan(`\n  Get free key: https://openrouter.ai/keys\n`));
-        process.exit(1);
+    // CASE 2: No custom key or wants to change - show both options
+    const choice = await prompts({
+        type: "select",
+        name: "value",
+        message: chalk.yellow("  Choose:"),
+        choices: [
+            { title: chalk.green(`Use free trials (${trials} left)`), value: "free" },
+            { title: chalk.blue("Add your API key"), value: "add" },
+        ],
+    });
+    if (choice.value === "free") {
+        if (trials <= 0) {
+            console.log(chalk.red("  Free trials exhausted! Add your API key."));
+            console.log(chalk.cyan(`\n  Get key: https://openrouter.ai/keys\n`));
+            process.exit(1);
+        }
+        console.log(chalk.cyan(`  Using free trial\n`));
+        return TRIAL_KEY;
     }
+    // User wants to add their own key
     console.log(chalk.cyan(`\n  Get your free API key:`));
     console.log(chalk.gray(`  https://openrouter.ai/keys\n`));
     const response = await prompts({
