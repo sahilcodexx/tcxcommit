@@ -1,3 +1,5 @@
 export declare function saveKey(key: string): void;
-export declare function getApiKey(): Promise<string>;
-export declare function useTrial(): number;
+export interface ApiKeyOptions {
+    forceTrial?: boolean;
+}
+export declare function getApiKey(options?: ApiKeyOptions): Promise<string>;

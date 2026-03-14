@@ -9,7 +9,7 @@ export async function generateCommitMessage(apiKey, diff) {
                 "X-Title": "tcxcommit",
             },
             body: JSON.stringify({
-                model: "arcee-ai/trinity-mini:free",
+                model: "arcee-ai/trinity-large-preview:free",
                 messages: [
                     {
                         role: "system",

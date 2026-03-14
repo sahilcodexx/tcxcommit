@@ -1,6 +1,6 @@
 {
   "name": "tcxcommit",
-  "version": "1.0.8",
+  "version": "1.0.15",
   "type": "module",
   "description": "AI-powered git commit message generator",
   "main": "dist/index.js",

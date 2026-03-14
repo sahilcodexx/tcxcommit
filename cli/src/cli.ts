@@ -4,7 +4,7 @@ import { run } from "./index.js";
 const args = process.argv.slice(2);
 
 if (args.includes("--version") || args.includes("-v")) {
-  console.log("1.0.8");
+  console.log("1.0.15");
   process.exit(0);
 }
 

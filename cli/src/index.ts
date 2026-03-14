@@ -1,12 +1,12 @@
 import { header } from "./ui/header.js";
 import { printBox, spinner } from "./ui/spinner.js";
-import { getApiKey, useTrial, saveKey } from "./utils/apiKey.js";
+import { getApiKey, saveKey } from "./utils/apiKey.js";
 import { generateCommitMessage } from "./api/openrouter.js";
 import { getGitDiff, commit } from "./utils/git.js";
 import chalk from "chalk";
 import prompts from "prompts";
 
-const VERSION = "1.0.7";
+const VERSION = "1.0.15";
 
 export async function run(): Promise<void> {
   try {

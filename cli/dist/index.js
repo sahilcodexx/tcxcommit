@@ -5,8 +5,8 @@ import { generateCommitMessage } from "./api/openrouter.js";
 import { getGitDiff, commit } from "./utils/git.js";
 import chalk from "chalk";
 import prompts from "prompts";
-const VERSION = "1.0.7";
-export async function run() {
+const VERSION = "1.0.15";
+export async function run(options) {
     try {
         header(VERSION);
         const start = await prompts({
@@ -18,7 +18,9 @@ export async function run() {
         if (!start.value) {
             return;
         }
-        const apiKey = await getApiKey();
+        const apiKey = await getApiKey({
+            forceTrial: options?.forceTrial,
+        });
         const diff = getGitDiff();
         if (!diff) {
             printBox([chalk.red("No changes found"), chalk.gray("Make some changes first")], { borderColor: "red" });
