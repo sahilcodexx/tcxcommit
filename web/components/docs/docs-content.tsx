@@ -20,7 +20,7 @@ export function DocsContent({ children }: { children: ReactNode }) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="flex-1 max-w-3xl min-h-screen py-8 px-4 md:px-8 lg:ml-56 lg:pr-8"
+          className="flex-1 max-w-3xl min-h-screen py-8 px-4 md:px-8 lg:ml-64 lg:pr-52 xl:pr-56"
         >
           {children}
         </motion.main>
