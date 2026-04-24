@@ -10,7 +10,7 @@ tcxcommit is a command-line tool that uses artificial intelligence to generate m
 
 - AI-powered commit message generation
 - Conventional commit format support (feat:, fix:, docs:, refactor:, etc.)
-- Free to start with 5 trial commits
+- Free to start with 10 trial commits
 - Option to use your own OpenRouter API key for unlimited usage
 - Automatic change staging
 - Git push support after commit
@@ -76,10 +76,10 @@ git add src/
 
 ### Option 1: Free Trials
 
-By default, tcxcommit provides 5 free trial commits using OpenRouter's free AI model. This is useful for testing or occasional use.
+By default, tcxcommit provides 10 free trial commits using OpenRouter's free AI model. This is useful for testing or occasional use.
 
 - No API key required
-- 5 free commits included
+- 10 free commits included
 - Shows remaining trials on each run
 - When exhausted, prompts to add your own key
 

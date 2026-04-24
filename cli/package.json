@@ -1,6 +1,6 @@
 {
   "name": "tcxcommit",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "type": "module",
   "description": "AI-powered git commit message generator",
   "main": "dist/index.js",
@@ -17,7 +17,7 @@
     "commit",
     "ai"
   ],
-  "author": "",
+  "author": "sahilcodex <sahil207003@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "chalk": "^5.6.2",
